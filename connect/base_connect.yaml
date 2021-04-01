@@ -68,3 +68,11 @@ spec:
           mountPath: /etc/config/connect/schema-registry-url.properties
           subPath: schema-registry-url.properties
           readOnly: true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: source-connector
+  labels:
+    destination: connect
+    enabled: "true"
