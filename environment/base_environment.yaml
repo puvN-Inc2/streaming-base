@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cbi-streaming-ops-aws-ccloud-environment
+  labels:
+    destination: ccloud
+  namespace: team_namespace
+data:
+  service-accounts: |
+    [
+      { "name": "cbi-streaming-service-client-aws",
+        "description": "Account for client apps"
+      }, {
+        "name": "cbi-streaming-ops-sr-client-aws",
+        "description": "Account for client access to cbi-streaming environment schema registry"
+      }, {
+        "name": "connect-worker-client-aws",
+        "description": "Account for connect worker client access"
+      }
+    ]
+  environments: |
+    [
+      {
+        "name": "cbi-streaming-ops-aws",
+        "schema-registry": {
+          "cloud": "aws",
+          "geo": "us",
+          "api-key": [
+            { "service-account": "cbi-streaming-ops-sr-client-aws" }
+          ]
+        },
+        "kafka": [
+          {
+            "name": "cbi-events",
+            "cloud": "aws",
+            "region": "us-east-2",
+            "topic": [
+              { "name": "_confluent-command", "partitions": 3 },
+              { "name": "_confluent-monitoring", "partitions": 3 },
+              { "name": "_confluent-license", "partitions": 3 }
+            ],
+            "acl": [
+              {
+                "service-account": "cbi-streaming-service-client-aws",
+                "controls": [
+                  { "operation" : "read,write,create,describe,describe-configs,delete", "permission": "allow",
+                    "resource": "topic", "name": "*" },
+                  { "operation" : "idempotent-write", "permission": "allow",
+                    "resource": "cluster-scope" }
+                ]
+              },
+              {
+                "service-account": "connect-worker-client-aws",
+                "controls": [
+                  { "operation" : "read,write,create,describe,describe-configs,delete", "permission": "allow",
+                    "resource": "topic", "name": "*", "prefix": "true" },
+                  { "operation" : "read", "permission": "allow",
+                    "resource": "consumer-group", "name": "streaming-ops-connect" },
+                  { "operation" : "describe", "permission": "allow",
+                    "resource": "cluster-scope" }
+                ]
+              }
+            ],
+            "api-key": [
+              { "service-account": "cbi-streaming-service-client-aws" },
+              { "service-account": "connect-worker-client-aws" }
+            ]
+          }
+        ]
+      }
+    ]
+
