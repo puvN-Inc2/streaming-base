@@ -4,6 +4,7 @@ metadata:
   name: cbi-streaming-ops-aws-ccloud-environment
   labels:
     destination: ccloud
+  namespace: cbi-streaming-23
 data:
   service-accounts: |
     [
